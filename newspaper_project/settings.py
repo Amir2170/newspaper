@@ -26,7 +26,7 @@ SECRET_KEY = '-((!6%g!5k%ye(1+6g$7ny^q*48kcau(tdinj_)c2rob+)=+6-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1',]
 
 
 # Application definition
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 	# Local
 	'pages.apps.PagesConfig',
 	'users.apps.UsersConfig',
+	'articles.apps.ArticlesConfig',
 	
 	# 3rd party
 	'crispy_forms',
