@@ -221,11 +221,21 @@ class ArticleCreateViewTest(TestCase):
 class CommentCreateViewTest(TestCase):
 	
 	def test_view_uses_correct_template(self):
-		user = User.objects.create()
+		user = User.objects.create(username='testuser', password='mypass123')
 		self.client.force_login(user)
-		article = Article.objects.create(title='title', body='body')
-		response = self.client.get(reverse('add_comment'))
+		article = Article.objects.create(title='title', body='body', author=user)
+		response = self.client.get(reverse('add_comment',
+			args=[str(article.id)]))
 		self.assertTemplateUsed(response, 'add_comment.html')
+		
+	def test_can_add_comment_to_a_specific_article(self):
+		user = User.objects.create(username='testuser', password='mypass123')
+		self.client.force_login(user)
+		article = Article.objects.create(title='title', body='body', author=user)
+		self.client.post(reverse('add_comment',
+			args=[str(article.id)]), data={'comment': 'first comment'})
+		comment = Comment.objects.first()
+		self.assertEqual(comment.article, article)
 		
 		
 		

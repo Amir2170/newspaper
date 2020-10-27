@@ -77,12 +77,11 @@ class ArticleCreateView(LoginRequiredMixin, CreateView):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
 
-
 class CommentCreateView(LoginRequiredMixin, CreateView):
 	
 	model = Comment
 	
-	template_name = 'comment_new.html'
+	template_name = 'add_comment.html'
 	
 	fields = ('comment',)
 	
@@ -91,6 +90,8 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 	context_object_name = 'comment'
 	
 	def form_valid(self, form):
-		form.instance.author = self.request.author
+		article = Article.objects.get(pk=self.kwargs['pk'])
+		form.instance.article = article
+		form.instance.author = self.request.user
 		return super().form_valid(form)	
 	

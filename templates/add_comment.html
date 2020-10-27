@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Add a comment to {{ comment.article.title }}</h2>
+  <h2>Add a comment</h2>
   <form action="" method="POST">
 	  {% csrf_token %}
 	  {{ form.as_p }}
+	  <button id="new_comment_button" class="btn btn-success ml- " type="submit">Save</button>
   </form>
+{% endblock %}

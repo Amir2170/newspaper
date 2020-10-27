@@ -34,7 +34,7 @@ class Comment(models.Model):
 		related_name='comments',
 	)
 	
-	comment = models.CharField(max_length=140)
+	comment = models.TextField()
 	
 	author = models.ForeignKey(
 		get_user_model(), 
