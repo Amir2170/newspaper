@@ -1,13 +1,13 @@
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.views import PasswordResetView
-from django.views.decorators.csrf import requires_csrf_token
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from .forms import CustomUserCreationForm
 
 
-@method_decorator(requires_csrf_token, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class SignUpView(CreateView):
 	
 	form_class = CustomUserCreationForm
