@@ -1,25 +1,19 @@
-from os import path
-import subprocess
-THIS_FOLDER = path.dirname(path.abspath(__file__))
-from fabric.api import env
+from fabric.api import run
+from fabric.context_managers import settings
 
-env.key_filename = "/path/to/.ssh/ssk_non_public_key"
+
+def _get_manage_dot_py(host):
+    return f'~/sites/{host}/virtualenv/bin/python3.8 ~/sites/{host}/source/newpaper/manage.py'
 
 
 def reset_database(host):
-    subprocess.check_call(
-        ['fab', 'reset_database', '--host=amir@{}'.format(host)],
-        cwd=THIS_FOLDER
-    )
+    manage_dot_py = _get_manage_dot_py(host)
+    with settings(host_string=f'amir@45.149.77.75'):
+        run(f'{manage_dot_py} flush --noinput')
 
 
 def create_session_on_server(host, email):
-    return subprocess.check_output(
-        [
-            'fab',
-            f'create_session_on_server:username:{username}',
-            '--host=amir@{}'.format(host),
-            '--hide=everything,status',
-        ],
-        cwd=THIS_FOLDER
-    ).decode().strip()
+    manage_dot_py = _get_manage_dot_py(host)
+    with settings(host_string=f'amir@45.149.77.75'):
+        session_key = run(f'{manage_dot_py} create_session {email}')
+        return session_key.strip()
