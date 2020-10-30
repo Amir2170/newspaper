@@ -3,16 +3,43 @@ from selenium import webdriver
 import time
 from django.core import mail
 import re
+import os
+import poplib
 
 
 class TestAuthentication(FunctionalTest):
 	
 	def wait_for_email(self, test_email, subject):
-		email = mail.outbox[0]
-		self.assertIn(test_email, email.to)
-		self.assertEqual(email.subject, subject)
-		return email.body
-	
+		if not self.stagign_server:
+			email = mail.outbox[0]
+			self.assertIn(test_email, email.to)
+			self.assertEqual(email.subject, subject)
+			return email.body
+		
+		email_id = None
+		start = time.time()
+		inbox = poplib.POP3_SSL('pop.gmail.com')
+		try:
+			inbox.user(test_email)
+			inbox.pass_(os.environ['GMAIL_PASSWORD'])
+			while time.time() - start < 60:
+				count, _ = inbox.stat()
+				for i in reversed(range(max(1, count - 10), count + 1)):
+					print('getting message ', i)
+					_, lines, _ = inbox.retr(i)
+					lines = [l.decode('utf8') for l in lines]
+					print(lines)
+					if f'Subject: {subject}': in lines:
+						email_id = i
+						body = '\n'.join(lines)
+						return body
+				time.sleep(5)
+		finally:
+			if email_id:
+				inbox.dele(email_id)
+			inbox.quit()
+		
+		
 	def test_signup_login_logout(self):
 		# martin goes to homepage of the newspaper site
 		self.browser.get(self.live_server_url)

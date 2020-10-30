@@ -1,12 +1,7 @@
 from .base import FunctionalTest
 from django.conf import settings
-from django.contrib.auth import ( 
-	BACKEND_SESSION_KEY, 
-	SESSION_KEY, 
-	get_user_model, 
-	HASH_SESSION_KEY
-)
-from django.contrib.sessions.backends.db import SessionStore
+from .server_tools import create_session_on_server
+from .management.commands.create_session import create_pre_authenticated_session
 import time
 
 User = get_user_model()
@@ -15,17 +10,17 @@ User = get_user_model()
 class TestAddingEditingDeletingAddingCommentAnArticle(FunctionalTest):
 	
 	def create_pre_authenticated_session(self, username, password):
-		user = User.objects.create_user(username=username, password=password)
-		session = SessionStore()
-		session[SESSION_KEY] = user.pk
-		session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
-		session[HASH_SESSION_KEY] = user.get_session_auth_hash()
-		session.save()
-
+		if self.staging_server:
+			session_key = create_session_on_server(
+				self.staging_server, username, password
+			)
+		else:
+			session_key = create_pre_authenticated_session(username, password)
+			
 		self.browser.get(self.live_server_url + "/404_no_such_url/")
 		self.browser.add_cookie(dict(
 			name=settings.SESSION_COOKIE_NAME,
-			value=session.session_key,
+			value=session_key,
 			path='/'
 		))
 		
