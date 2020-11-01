@@ -1,6 +1,7 @@
 from fabric.contrib.files import append, exists, sed
 from fabric.api import env, local, run
 import random
+import os
 
 
 REPO_URL = 'https://github.com/Amir2170/newspaper.git'
@@ -32,12 +33,6 @@ def _update_settings(source_folder, site_name):
 		key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
 		append(secret_key_file, f'SECRET_KEY = "{key}"')
 	append(settings_path, '\nfrom .secret_key import SECRET_KEY')
-	
-	email_pass_file = source_folder + 'newspaper/newspaper_project/email_pass.py'
-	if not exists(email_pass_file):
-		pass_ = os.environ.get('EMAIL_PASSWORD'0
-		append(email_pass_file, f'EMAIL_PASSOWRD = "{pass_}"')
-	append(settings_path, '\nfrom .email_pass import EMAIL_PASSWORD')
 	
 
 def _update_virtualenv(source_folder):
