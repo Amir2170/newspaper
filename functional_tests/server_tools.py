@@ -11,12 +11,11 @@ def reset_database(host):
 
 
 def create_session_on_server(host, username, password):
-	subprocess.check_output(
+	return subprocess.check_output(
 		[
-			'fab', 
-			f'create_session_on_server:username={username} password={password}',
+			'fab' ,
+			f'create_session_on_server:{username},password={password}', 
 			f'--host=amir@{host}',
-			'--hide=everything, status',
 		],
-		cwd=THIS_FOLDER
+		cwd=THIS_FOLDER,
 	).decode().strip()

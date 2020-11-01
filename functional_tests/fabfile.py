@@ -6,16 +6,18 @@ def _get_base_folder(host):
 	
 	
 def _get_manage_dot_py(host):
-	return  f'{_get_base_folder(host)}/virtualenv/bin/python3.8 {_get_base_folder(host)}/source/newspaper/manage.py'
+	base_folder = _get_base_folder(host)
+	return  f'{base_folder}/virtualenv/bin/python3.8 {base_folder}/source/newspaper/manage.py'
 		
 
 
 def reset_database():
-	run(f'{_get_manage_dot_py(env.host)} flush --noinput')
+	manage_dot_py = _get_manage_dot_py(env.host)
+	run(f'{manage_dot_py} flush --noinput')
 
 
 def create_session_on_server(username, password):
+	manage_dot_py = _get_manage_dot_py(env.host)
 	session_key = run(
-		f'{_get_manage_dot_py(env.host)} create_session {username} {password}'
+		f'{manage_dot_py} create_session username={username} password={password}'
 	)
-	print(session_key)

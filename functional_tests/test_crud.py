@@ -3,12 +3,14 @@ from django.conf import settings
 from .server_tools import create_session_on_server
 from .management.commands.create_session import create_pre_authenticated_session
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from selenium.common import exceptions
 import time
 
 User = get_user_model()
 
 
-class TestAddingEditingDeletingAddingCommentAnArticle(FunctionalTest):
+class TestAddingEditingDeletingCommentAnArticle(FunctionalTest):
 	
 	def create_pre_authenticated_session(self, username, password):
 		if self.staging_server:
@@ -17,18 +19,19 @@ class TestAddingEditingDeletingAddingCommentAnArticle(FunctionalTest):
 			)
 		else:
 			session_key = create_pre_authenticated_session(username, password)
-			
-		self.browser.get(self.live_server_url + "/404_no_such_url/")
+
+		self.browser.get(self.live_server_url +  "/404_no_such_url/")
 		self.browser.add_cookie(dict(
 			name=settings.SESSION_COOKIE_NAME,
 			value=session_key,
-			path='/'
+			path='/',
 		))
 		
 	def test_can_add_edit_delete_add_comment_to_an_article(self):
 		# johnny goes to the newspapersite, he is logged in
-		self.create_pre_authenticated_session(username='testuser', password='mypass123')
+		self.create_pre_authenticated_session('testuser', 'mypass123')
 		self.browser.get(self.live_server_url)
+		time.sleep(5)
 		
 		# he sees a '+ New' link so he clicks on it
 		self.browser.find_element_by_link_text('+ New').click()
