@@ -16,6 +16,7 @@ def create_session_on_server(host, username, password):
 			'fab' ,
 			f'create_session_on_server:{username},password={password}', 
 			f'--host=amir@{host}',
+			'--hide=everything,status',
 		],
 		cwd=THIS_FOLDER,
 	).decode().strip()

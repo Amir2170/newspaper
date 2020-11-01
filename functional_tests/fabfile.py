@@ -21,3 +21,4 @@ def create_session_on_server(username, password):
 	session_key = run(
 		f'{manage_dot_py} create_session username={username} password={password}'
 	)
+	print(session_key)
