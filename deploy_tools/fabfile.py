@@ -14,17 +14,17 @@ def _get_latest_source(source_folder):
 	if exists(source_folder + '/newspaper/.git'):
 		run(f'cd {source_folder}/newspaper && git fetch')
 	else:
-		run(f'git clone {REPO_URL} {source_folder}')
+		run(f'cd {source_folder} && git clone -b master {REPO_URL}')
 	current_commit = local("git log -n 1 --format=%H", capture=True)
 	run(f'cd {source_folder}/newspaper && git reset --hard {current_commit}')
 
 
-def _update_settings(source_foler, site_name):
-	settings_path = source_folder + '/newspaper/newpaper_project/settings.py'
+def _update_settings(source_folder, site_name):
+	settings_path = source_folder + '/newspaper/newspaper_project/settings.py'
 	sed(settings_path, "DEBUG=True", "DEBUG=False")
 	sed(settings_path,
 		"ALLOWED_HOSTS = .+$",
-		f'ALLOWED_HOSTS = [{site_name}]',
+		f'ALLOWED_HOSTS = ["{site_name}"]',
 	)
 	secret_key_file = source_folder + '/newspaper/newspaper_project/secret_key.py'
 	if not exists(secret_key_file):
@@ -32,6 +32,13 @@ def _update_settings(source_foler, site_name):
 		key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
 		append(secret_key_file, f'SECRET_KEY = "{key}"')
 	append(settings_path, '\nfrom .secret_key import SECRET_KEY')
+	
+	email_pass_file = source_folder + 'newspaper/newspaper_project/email_pass.py'
+	if not exists(email_pass_file):
+		pass_ = os.environ.get('EMAIL_PASSWORD'0
+		append(email_pass_file, f'EMAIL_PASSOWRD = "{pass_}"')
+	append(settings_path, '\nfrom .email_pass import EMAIL_PASSWORD')
+	
 
 def _update_virtualenv(source_folder):
 	virtualenv_folder = source_folder + '/../virtualenv'
@@ -41,8 +48,9 @@ def _update_virtualenv(source_folder):
 		
 
 def _update_database(source_folder):
-	run(f'cd {source_folder}'
-		'&& ../virtualenv/bin/python3.8 manage.py migrate --noinput'
+	run(
+		f'cd {source_folder}/newspaper'
+		' && ../../virtualenv/bin/python3.8 manage.py migrate --noinput'
 	)
 
 
@@ -51,7 +59,7 @@ def deploy():
 	source_folder = site_folder + '/source'
 	_create_directory_structure_if_necessary(site_folder)
 	_get_latest_source(source_folder)
-	_update_settings(source_foler, env.host)
+	_update_settings(source_folder, env.host)
 	_update_virtualenv(source_folder)
 	_update_database(source_folder)
 
